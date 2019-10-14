@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using NRules.RuleModel;
 using NRules.RuleModel.Builders;
 
@@ -36,6 +37,13 @@ namespace NRules.Fluent.Expressions
         }
 
         public static void DslAction(this ActionGroupBuilder builder, IEnumerable<Declaration> declarations, Expression<Action<IContext>> action, ActionTrigger actionTrigger)
+        {
+            var rewriter = new ExpressionRewriter(declarations);
+            var rewrittenAction = rewriter.Rewrite(action);
+            builder.Action(rewrittenAction, actionTrigger);
+        }
+
+        public static void AsyncDslAction(this ActionGroupBuilder builder, IEnumerable<Declaration> declarations, Expression<Func<IContext, Task>> action, ActionTrigger actionTrigger)
         {
             var rewriter = new ExpressionRewriter(declarations);
             var rewrittenAction = rewriter.Rewrite(action);

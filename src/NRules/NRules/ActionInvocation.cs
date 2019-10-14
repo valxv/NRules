@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using NRules.Extensibility;
 using NRules.RuleModel;
 
@@ -25,6 +26,11 @@ namespace NRules
         public void Invoke()
         {
             _action.Invoke(_executionContext, _actionContext, Arguments);
+        }
+
+        public Task InvokeAsync()
+        {
+            return _action.InvokeAsync(_executionContext, _actionContext, Arguments);
         }
     }
 }

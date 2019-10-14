@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using NRules.RuleModel;
 
 namespace NRules.Extensibility
@@ -20,6 +21,8 @@ namespace NRules.Extensibility
         /// Invokes the action.
         /// </summary>
         void Invoke();
+
+        Task InvokeAsync();
 
         /// <summary>
         /// Activation events that trigger this action.

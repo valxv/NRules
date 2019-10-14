@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using NRules.Fluent.Dsl;
 using NRules.RuleModel;
 using NRules.RuleModel.Builders;
@@ -28,6 +29,12 @@ namespace NRules.Fluent.Expressions
         public IRightHandSideExpression Do(Expression<Action<IContext>> action)
         {
             return Action(action, ActionTrigger.Activated | ActionTrigger.Reactivated);
+        }
+
+        public IRightHandSideExpression Do(Expression<Func<IContext, Task>> action)
+        {
+            _builder.AsyncDslAction(_symbolStack.Scope.Declarations, action, ActionTrigger.Activated | ActionTrigger.Reactivated);
+            return this;
         }
 
         public IRightHandSideExpression Undo(Expression<Action<IContext>> action)

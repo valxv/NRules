@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using NRules.AgendaFilters;
 using NRules.Aggregators;
 using NRules.Rete;
@@ -67,14 +68,25 @@ namespace NRules.Utilities
 
         public static IRuleAction CompileAction(ActionElement element, IEnumerable<Declaration> declarations, IEnumerable<Declaration> dependencies)
         {
-            var optimizer = new ExpressionMultiParameterOptimizer<Action<IContext, object[]>>();
-            var optimizedExpression = optimizer.CompactParameters(element.Expression, 1);
-            var @delegate = optimizedExpression.Compile();
-            var fastDelegate = Create(@delegate, element.Expression.Parameters.Count - 1);
             var tupleFactMap = IndexMap.CreateMap(element.Imports, declarations);
             var dependencyIndexMap = IndexMap.CreateMap(element.Imports, dependencies);
-            var action = new RuleAction(element.Expression, fastDelegate, tupleFactMap, dependencyIndexMap, element.ActionTrigger);
-            return action;
+
+            if (element.Expression.ReturnType == typeof(Task))
+            {
+                var optimizer = new ExpressionMultiParameterOptimizer<Func<IContext, object[], Task>>();
+                var optimizedExpression = optimizer.CompactParameters(element.Expression, 1);
+                var @delegate = optimizedExpression.Compile();
+                var fastDelegate = Create(@delegate, element.Expression.Parameters.Count - 1);
+                return new RuleAction(element.Expression, fastDelegate, tupleFactMap, dependencyIndexMap, element.ActionTrigger);
+            }
+            else
+            {
+                var optimizer = new ExpressionMultiParameterOptimizer<Action<IContext, object[]>>();
+                var optimizedExpression = optimizer.CompactParameters(element.Expression, 1);
+                var @delegate = optimizedExpression.Compile();
+                var fastDelegate = Create(@delegate, element.Expression.Parameters.Count - 1);
+                return new RuleAction(element.Expression, fastDelegate, tupleFactMap, dependencyIndexMap, element.ActionTrigger);
+            }
         }
 
         public static IAggregateExpression CompileAggregateExpression(NamedExpressionElement element, List<Declaration> declarations)

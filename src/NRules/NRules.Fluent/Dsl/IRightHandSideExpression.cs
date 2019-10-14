@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using NRules.RuleModel;
 
 namespace NRules.Fluent.Dsl
@@ -24,6 +25,8 @@ namespace NRules.Fluent.Dsl
         /// <param name="action">Action expression.</param>
         /// <returns>Right hand side expression builder.</returns>
         IRightHandSideExpression Do(Expression<Action<IContext>> action);
+
+        IRightHandSideExpression Do(Expression<Func<IContext, Task>> action);
 
         /// <summary>
         /// Defines rule's action that engine executes when the rule fires

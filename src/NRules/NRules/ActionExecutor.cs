@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using NRules.RuleModel;
 using NRules.Utilities;
 
@@ -8,6 +10,8 @@ namespace NRules
     internal interface IActionExecutor
     {
         void Execute(IExecutionContext executionContext, IActionContext actionContext);
+
+        Task ExecuteAsync(IExecutionContext executionContext, IActionContext actionContext);
     }
 
     internal class ActionExecutor : IActionExecutor
@@ -32,6 +36,40 @@ namespace NRules
                     try
                     {
                         invocation.Invoke();
+                    }
+                    catch (Exception e)
+                    {
+                        throw new RuleRhsExpressionEvaluationException("Failed to evaluate rule action",
+                            actionContext.Rule.Name, invocation.Expression.ToString(), e);
+                    }
+                }
+            }
+            executionContext.EventAggregator.RaiseRuleFired(session, activation);
+        }
+
+        public async Task ExecuteAsync(IExecutionContext executionContext, IActionContext actionContext)
+        {
+            ISession session = executionContext.Session;
+            Activation activation = actionContext.Activation;
+
+            var invocations = CreateInvocations(executionContext, actionContext);
+
+            executionContext.EventAggregator.RaiseRuleFiring(session, activation);
+            var interceptor = session.ActionInterceptor;
+            if (interceptor != null)
+            {
+                interceptor.Intercept(actionContext, invocations);
+            }
+            else
+            {
+                foreach (var invocation in invocations)
+                {
+                    try
+                    {
+                        if (((LambdaExpression)invocation.Expression).ReturnType == typeof(Task))
+                            await invocation.InvokeAsync().ConfigureAwait(false);
+                        else
+                            invocation.Invoke();
                     }
                     catch (Exception e)
                     {
