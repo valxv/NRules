@@ -7,10 +7,8 @@ namespace TestApp
     {
         public override void Define()
         {
-            TestFact testFact = null;
-
             When()
-                .Match<TestFact>(() => testFact, f => !string.IsNullOrEmpty(f.PropOne) && f.PropTwo == null);
+                .Match<TestFact>(f => f.PropOne == "test1" && f.PropTwo == null);
 
             Then()
                 .Do(_ => Actions.DoSomethingAsync())
