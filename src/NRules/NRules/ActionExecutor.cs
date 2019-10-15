@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using NRules.RuleModel;
 using NRules.Utilities;
@@ -11,7 +12,7 @@ namespace NRules
     {
         void Execute(IExecutionContext executionContext, IActionContext actionContext);
 
-        Task ExecuteAsync(IExecutionContext executionContext, IActionContext actionContext);
+        Task ExecuteAsync(IExecutionContext executionContext, IActionContext actionContext, CancellationToken cancellationToken);
     }
 
     internal class ActionExecutor : IActionExecutor
@@ -47,7 +48,8 @@ namespace NRules
             executionContext.EventAggregator.RaiseRuleFired(session, activation);
         }
 
-        public async Task ExecuteAsync(IExecutionContext executionContext, IActionContext actionContext)
+        public async Task ExecuteAsync(IExecutionContext executionContext,
+            IActionContext actionContext, CancellationToken cancellationToken)
         {
             ISession session = executionContext.Session;
             Activation activation = actionContext.Activation;
@@ -67,7 +69,7 @@ namespace NRules
                     try
                     {
                         if (((LambdaExpression)invocation.Expression).ReturnType == typeof(Task))
-                            await invocation.InvokeAsync().ConfigureAwait(false);
+                            await invocation.InvokeAsync(cancellationToken).ConfigureAwait(false);
                         else
                             invocation.Invoke();
                     }

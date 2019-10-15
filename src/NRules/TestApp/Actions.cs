@@ -9,7 +9,7 @@ namespace TestApp
         {
             Console.WriteLine("Started async task DoSomethingAsync");
 
-            await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
 
             Console.WriteLine("Finished async task DoSomethingAsync");
         }

@@ -16,7 +16,8 @@ namespace TestApp
 
             Then()
                 .Do(_ => Actions.UpdateFactProp2Async(testFact))
-                .Do(ctx => ctx.Update(testFact));
+                .Do(ctx => ctx.Update(testFact))
+                .Do(_ => Console.WriteLine("Finished Update rule"));
         }
     }
 }

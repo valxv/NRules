@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NRules.Diagnostics;
 using NRules.Extensibility;
@@ -174,7 +175,7 @@ namespace NRules
         /// Starts rules execution cycle asynchronously.
         /// </summary>
         /// <returns>Number of rules that fired.</returns>
-        Task<int> FireAsync();
+        Task<int> FireAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Starts rules execution cycle.
@@ -189,8 +190,9 @@ namespace NRules
         /// This method blocks until maximum number of rules fired or there are no more rules to fire.
         /// </summary>
         /// <param name="maxRulesNumber">Maximum number of rules to fire.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of rules that fired.</returns>
-        Task<int> FireAsync(int maxRulesNumber);
+        Task<int> FireAsync(int maxRulesNumber, CancellationToken cancellationToken);
 
         /// <summary>
         /// Creates a LINQ query to retrieve facts of a given type from the rules engine's memory.
@@ -533,9 +535,9 @@ namespace NRules
             return Fire(int.MaxValue);
         }
 
-        public Task<int> FireAsync()
+        public Task<int> FireAsync(CancellationToken cancellationToken)
         {
-            return FireAsync(int.MaxValue);
+            return FireAsync(int.MaxValue, cancellationToken);
         }
 
         public int Fire(int maxRulesNumber)
@@ -556,7 +558,7 @@ namespace NRules
             return ruleFiredCount;
         }
 
-        public async Task<int> FireAsync(int maxRulesNumber)
+        public async Task<int> FireAsync(int maxRulesNumber, CancellationToken cancellationToken)
         {
             int ruleFiredCount = 0;
             while (!_agenda.IsEmpty && ruleFiredCount < maxRulesNumber)
@@ -564,7 +566,7 @@ namespace NRules
                 Activation activation = _agenda.Pop();
                 IActionContext actionContext = new ActionContext(this, activation);
 
-                await _actionExecutor.ExecuteAsync(_executionContext, actionContext).ConfigureAwait(false);
+                await _actionExecutor.ExecuteAsync(_executionContext, actionContext, cancellationToken).ConfigureAwait(false);
                 ruleFiredCount++;
 
                 UnlinkFacts();

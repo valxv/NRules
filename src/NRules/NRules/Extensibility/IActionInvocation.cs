@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using NRules.RuleModel;
 
@@ -22,7 +23,7 @@ namespace NRules.Extensibility
         /// </summary>
         void Invoke();
 
-        Task InvokeAsync();
+        Task InvokeAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Activation events that trigger this action.

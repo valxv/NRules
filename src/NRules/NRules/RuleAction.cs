@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using NRules.Extensibility;
 using NRules.Rete;
@@ -14,7 +15,7 @@ namespace NRules
         ActionTrigger Trigger { get; }
         object[] GetArguments(IExecutionContext executionContext, IActionContext actionContext);
         void Invoke(IExecutionContext executionContext, IActionContext actionContext, object[] arguments);
-        Task InvokeAsync(IExecutionContext executionContext, IActionContext actionContext, object[] arguments);
+        Task InvokeAsync(IExecutionContext executionContext, IActionContext actionContext, object[] arguments, CancellationToken cancellationToken);
     }
 
     internal class RuleAction : IRuleAction
@@ -106,12 +107,14 @@ namespace NRules
             }
         }
 
-        public async Task InvokeAsync(IExecutionContext executionContext, IActionContext actionContext, object[] arguments)
+        public async Task InvokeAsync(IExecutionContext executionContext, IActionContext actionContext, object[] arguments, CancellationToken cancellationToken)
         {
             Exception exception = null;
             try
             {
-                await Task.Run(() => _compiledAsyncExpression.Delegate.Invoke(actionContext, arguments)).ConfigureAwait(false);
+                //TODO: Substitute CancellationToken parameter in expression tree if exists
+                // https://www.codeproject.com/Articles/143096/Parameter-Substitution-within-Expression-Trees
+                await Task.Run(() => _compiledAsyncExpression.Delegate.Invoke(actionContext, arguments), cancellationToken).ConfigureAwait(false);
             }
             catch (Exception e)
             {

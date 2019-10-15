@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using NRules;
 using NRules.Fluent;
@@ -33,7 +34,9 @@ namespace TestApp
 
             session.Insert(testFact);
 
-            return session.FireAsync();
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+
+            return session.FireAsync(cts.Token);
         }
 
         private static Task RunSession2(ISessionFactory factory)
@@ -44,7 +47,7 @@ namespace TestApp
 
             session.Insert(testFact);
 
-            return session.FireAsync();
+            return session.FireAsync(CancellationToken.None);
         }
     }
 }
