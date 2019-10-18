@@ -68,6 +68,9 @@ namespace NRules
                 {
                     try
                     {
+                        if (cancellationToken.IsCancellationRequested)
+                            break;
+
                         if (((LambdaExpression)invocation.Expression).ReturnType == typeof(Task))
                             await invocation.InvokeAsync(cancellationToken).ConfigureAwait(false);
                         else

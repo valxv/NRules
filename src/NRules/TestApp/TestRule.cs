@@ -11,8 +11,8 @@ namespace TestApp
                 .Match<TestFact>(f => f.PropOne == "test1" && f.PropTwo == null);
 
             Then()
-                .Do(_ => Actions.DoSomethingAsync())
-                .Do(_ => Console.WriteLine("Finished processing"));
+                .Do(ctx => Actions.DoSomethingAsync(ctx.CancellationToken))
+                .Do(_ => Console.WriteLine("Finished processing DoSomethingAsync"));
         }
     }
 }

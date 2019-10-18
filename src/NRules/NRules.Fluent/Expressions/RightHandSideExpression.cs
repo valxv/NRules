@@ -38,12 +38,6 @@ namespace NRules.Fluent.Expressions
             return this;
         }
 
-        public IRightHandSideExpression Do(Expression<Func<IContext, CancellationToken, Task>> action)
-        {
-            _builder.AsyncDslAction(_symbolStack.Scope.Declarations, action, ActionTrigger.Activated | ActionTrigger.Reactivated);
-            return this;
-        }
-
         public IRightHandSideExpression Undo(Expression<Action<IContext>> action)
         {
             return Action(action, ActionTrigger.Deactivated);

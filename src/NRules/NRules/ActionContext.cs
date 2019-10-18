@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using NRules.Extensibility;
 using NRules.RuleModel;
 
@@ -21,6 +22,7 @@ namespace NRules
             _session = session;
             Activation = activation;
             IsHalted = false;
+            CancellationToken = CancellationToken.None;
         }
 
         public IRuleDefinition Rule => CompiledRule.Definition;
@@ -29,6 +31,8 @@ namespace NRules
 
         public Activation Activation { get; }
         public bool IsHalted { get; private set; }
+
+        public CancellationToken CancellationToken { get; set; }
 
         public void Halt()
         {

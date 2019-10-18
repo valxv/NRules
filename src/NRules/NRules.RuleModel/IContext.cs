@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace NRules.RuleModel
 {
@@ -18,6 +19,8 @@ namespace NRules.RuleModel
         /// Current rule match.
         /// </summary>
         IMatch Match { get; }
+
+        CancellationToken CancellationToken { get; set; }
 
         /// <summary>
         /// Halts rules execution. The engine continues execution of the current rule and exits the execution cycle.

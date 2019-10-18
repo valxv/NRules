@@ -114,7 +114,12 @@ namespace NRules
             {
                 //TODO: Substitute CancellationToken parameter in expression tree if exists
                 // https://www.codeproject.com/Articles/143096/Parameter-Substitution-within-Expression-Trees
+                actionContext.CancellationToken = cancellationToken;
                 await Task.Run(() => _compiledAsyncExpression.Delegate.Invoke(actionContext, arguments), cancellationToken).ConfigureAwait(false);
+            }
+            catch(TaskCanceledException)
+            {
+                actionContext.Halt();
             }
             catch (Exception e)
             {

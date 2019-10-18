@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TestApp
 {
     public static class Actions
     {
-        public static async Task DoSomethingAsync()
+        public static async Task DoSomethingAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("Started async task DoSomethingAsync");
 
-            await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken).ConfigureAwait(false);
 
             Console.WriteLine("Finished async task DoSomethingAsync");
         }
